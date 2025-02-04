@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  --color-white-gray: #fafafa;
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  font-family: "Ubuntu", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+svg {
+  display: flex;
+  align-items: center;
+}

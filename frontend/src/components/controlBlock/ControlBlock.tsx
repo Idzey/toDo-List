@@ -1,0 +1,45 @@
+import ModalCreateTask from "../modal/ModalTask";
+import { FaFilter, FaPlus } from "react-icons/fa6";
+import React from "react";
+import Filter from "../filter/Filter";
+import { AnimatePresence, motion } from "framer-motion";
+import { Button } from "antd";
+
+const ConrolBlock = () => {
+  const [openModal, setOpenModal] = React.useState(false);
+  const [openFilter, setOpenFilter] = React.useState(false);
+
+  const handlerOpenModal = () => {
+    setOpenModal(true);
+  };
+
+  return (
+    <div className="flex gap-2">
+      <Button onClick={handlerOpenModal} color="primary" variant="solid">
+        <FaPlus /> New Task
+      </Button>
+      <ModalCreateTask
+        createModal={true}
+        open={openModal}
+        setOpen={setOpenModal}
+      />
+      <Button color="pink" variant={openFilter ? "solid" : "outlined"} onClick={() => setOpenFilter(!openFilter)}>
+        <FaFilter /> Filters
+      </Button>
+      <AnimatePresence>
+        {openFilter && (
+          <motion.div
+            initial={{ opacity: 0, x: -100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <Filter />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+export default ConrolBlock;
