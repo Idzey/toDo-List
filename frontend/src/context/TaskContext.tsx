@@ -1,20 +1,13 @@
-import React, { createContext, useContext } from 'react';
-import Tasks from '../types/tasks';
+import { createContext, useContext } from "react";
+import Task from "../types/task";
 
 const TaskContext = createContext<{
-  tasks: Tasks;
-  setTasks: React.Dispatch<React.SetStateAction<Tasks>>;
-  tasksNode: Tasks;
-  setTasksNode: React.Dispatch<React.SetStateAction<Tasks>>;
-}>({ 
-  tasks: [], 
-  setTasks: () => {},
-  tasksNode: [],
-  setTasksNode: () => {},
-});
+  task: Task | null;
+  setTasks: React.Dispatch<React.SetStateAction<Task | null>>;
+}>({ task: null, setTasks: () => {} });
 
 export {TaskContext};
 
-const useTaskContext = () => useContext(TaskContext)
+const useTaskContext = () => useContext(TaskContext);
 
 export default useTaskContext;

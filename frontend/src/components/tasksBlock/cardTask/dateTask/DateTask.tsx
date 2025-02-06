@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
-const DateTask = ({ date }: { date: string | Date }) => {
+const DateTask = ({ date }: { date: string | Date | string | undefined}) => {
+  if (!date) return;
   const checkTomorrow = (date: string | Date) => {
     date = new Date(date);
     const today = new Date();

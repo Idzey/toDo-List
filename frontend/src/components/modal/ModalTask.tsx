@@ -1,30 +1,29 @@
-import { Form, Modal, notification } from "antd";
+import { Form, Modal } from "antd";
 import React, { useEffect } from "react";
 import Task from "../../types/task";
 import taskService from "../../services/taskService";
-import useTaskContext from "../../context/TaskContext";
+import useTaskContext from "../../context/TasksContext";
 import dayjs from "dayjs";
 import FormModal from "./formModal/FormModal";
+import { openSuccessNotification } from "../notification/Notification";
 
 const ModalTask = ({
   open,
   setOpen,
   createModal,
   task,
+  setTask,
 }: {
   task?: Task;
+  setTask?: (task: Task) => void;
   open: boolean;
   createModal?: boolean;
   setOpen: (open: boolean) => void;
 }) => {
-  const { tasks, setTasks, setTasksNode } = useTaskContext();
+  const { tasks, setTasksNode } = useTaskContext();
 
   const [confirmLoading, setConfirmLoading] = React.useState(false);
   const [form] = Form.useForm();
-
-  const openNotification = (title: string) => {
-    notification.success({ message: `Succes, ${title}!`, placement: "bottomRight" });
-  };
 
   const handleCancel = () => {
     setOpen(false);
@@ -37,13 +36,12 @@ const ModalTask = ({
         const values = await form.validateFields();
         const task: Task = await taskService.createTask(values);
 
-        setTasks([...tasks, task]);
         setTasksNode([...tasks, task]);
 
         setConfirmLoading(false);
         form.resetFields();
         setOpen(false);
-        openNotification("was been created");
+        openSuccessNotification("was been created");
       } catch {
         setConfirmLoading(false);
       }
@@ -60,9 +58,6 @@ const ModalTask = ({
         const values = await form.validateFields();
         const updateTask: Task = await taskService.updateTask(id, values);
 
-        setTasks(
-          tasks.map((task: Task) => (task?.id == id ? updateTask : task))
-        );
         setTasksNode(
           tasks.map((task: Task) => (task?.id == id ? updateTask : task))
         );
@@ -70,7 +65,12 @@ const ModalTask = ({
         setConfirmLoading(false);
         form.resetFields();
         setOpen(false);
-        openNotification("task was been updated");
+
+        if (setTask) {
+          setTask(updateTask);
+        }
+
+        openSuccessNotification("task was been updated");
       } catch {
         setConfirmLoading(false);
       }

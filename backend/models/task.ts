@@ -5,9 +5,18 @@ const taskSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    completed: Boolean,
-    comments: Number,
-    date: Date
+    completed: {
+        type: Boolean,
+        required: true,
+    },
+    comments: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Comment"
+    }],
+    date: {
+        type: Date,
+        required: true,
+    }
 }, {timestamps: true});
 
 taskSchema.set('toJSON', {
@@ -21,5 +30,6 @@ taskSchema.set('toJSON', {
 const Task = mongoose.model('Task', taskSchema);
 
 export {
+    taskSchema,
     Task
 }

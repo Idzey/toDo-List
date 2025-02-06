@@ -2,7 +2,7 @@ import axios from 'axios';
 import Tasks from '../types/tasks';
 import Task from '../types/task';
 
-const baseURL = 'http://localhost:3003/api/tasks';
+const baseURL = 'http://localhost:3000/api/tasks';
 
 const getAll = async () => {
     const response = await axios.get(baseURL);

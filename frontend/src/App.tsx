@@ -1,12 +1,11 @@
+import { BrowserRouter, Route, Routes } from "react-router";
+import HomePage from "./pages/HomePage";
+import TaskPage from "./pages/TaskPage";
 import React, { useEffect } from "react";
-import Wrapper from "./components/wrapper/Wrapper";
-import TasksBlock from "./components/tasksBlock/TasksBlock";
 import Tasks from "./types/tasks";
-import CardTask from "./components/tasksBlock/cardTask/CardTask";
 import taskService from "./services/taskService";
-import {TaskContext} from "./context/TaskContext";
-import ControlBlock from "./components/controlBlock/ControlBlock";
-import { Divider } from "antd";
+import { TasksContext } from "./context/TasksContext";
+import Wrapper from "./components/wrapper/Wrapper";
 
 function App() {
   const [tasksNode, setTasksNode] = React.useState<Tasks>([]);
@@ -19,28 +18,25 @@ function App() {
       setTasksNode(tasks);
       setTasks(tasks);
     };
+    
     fetchTasks();
   }, []);
 
-  
+  useEffect(() => {
+    setTasks(tasksNode);
+  }, [tasksNode]);
 
   return (
-    <Wrapper>
-      <div className="w-full">
-        <h1 className="text-3xl">To-Do</h1>
-        <Divider className="border-b-1 border-b-gray-300" />
-      </div>
-
-      <TaskContext.Provider value={{tasks, setTasks, tasksNode, setTasksNode}}>
-        <ControlBlock />
-        
-        <TasksBlock>
-          {tasks.map((task) => (
-            <CardTask task={task} key={task.id} />
-          ))}
-        </TasksBlock>
-      </TaskContext.Provider>
-    </Wrapper>
+    <TasksContext.Provider value={{ tasks, setTasks, tasksNode, setTasksNode }}>
+      <Wrapper>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/task/:taskId" element={<TaskPage />} />
+          </Routes>
+        </BrowserRouter>
+      </Wrapper>
+    </TasksContext.Provider>
   );
 }
 

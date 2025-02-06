@@ -1,10 +1,12 @@
+import Comment from "./comment";
+
 type Task = {
-    id?: number,
+    id: number,
     title: string,
     completed: boolean,
     createdAt: string,
     updatedAt: string,
-    comments: number,
+    comments: Comment[],
     date: Date
 }
 

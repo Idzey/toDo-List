@@ -2,7 +2,6 @@ import ModalCreateTask from "../modal/ModalTask";
 import { FaFilter, FaPlus } from "react-icons/fa6";
 import React from "react";
 import Filter from "../filter/Filter";
-import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "antd";
 
 const ConrolBlock = () => {
@@ -26,18 +25,9 @@ const ConrolBlock = () => {
       <Button color="pink" variant={openFilter ? "solid" : "outlined"} onClick={() => setOpenFilter(!openFilter)}>
         <FaFilter /> Filters
       </Button>
-      <AnimatePresence>
-        {openFilter && (
-          <motion.div
-            initial={{ opacity: 0, x: -100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          >
-            <Filter />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {openFilter && (
+          <Filter />
+      )}
     </div>
   );
 };
