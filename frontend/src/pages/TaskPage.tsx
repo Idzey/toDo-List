@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router";
 import taskService from "../services/taskService";
-import Task from "../types/task";
 import { openErrorNotification } from "../components/notification/Notification";
 import { Button, Card, Divider, Form, Popconfirm } from "antd";
 import CardTask from "../components/tasksBlock/cardTask/CardTask";
@@ -10,11 +9,14 @@ import { FaTrash } from "react-icons/fa6";
 import dayjs from "dayjs";
 import Comment from "../types/comment";
 import commentService from "../services/commentService";
-import useTaskContext, { TaskContext } from "../context/TaskContext";
+import useSelectedTaskStore from "../store/selectedTask";
+import useTasksStore from "../store/tasks";
+import Task from "../types/task";
 
 const TaskPage = () => {
   const { taskId } = useParams();
-  const [task, setTask] = useState<Task | null>(null);
+  const {tasks, setTasks} = useTasksStore();
+  const {task, setTask} = useSelectedTaskStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,55 +34,63 @@ const TaskPage = () => {
     fetchTask();
   }, [taskId]);
 
- 
+  useEffect(() => {
+    setTasks(
+      tasks.map((item: Task) => item.id == task?.id ? task : item)
+    );
+  }, [task]);
+
   if (!task) return null;
 
   return (
     <>
-      <TaskContext.Provider value={{ task, setTasks: setTask }}>
+      <div className="w-full">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl">
+            <Link to="/">To-Do</Link> | Task - {task.title}
+          </h1>
+          <Button color="pink" variant="solid" onClick={() => navigate("/")}>
+            Go home
+          </Button>
+        </div>
+        <Divider className="border-b-1 border-b-gray-300" />
+
         <div className="w-full">
-          <div className="flex items-center justify-between">
-            <h1 className="text-3xl">To-Do | Task - {task.title}</h1>
-            <Button color="pink" variant="solid" onClick={() => navigate("/")}>
-              Go home
-            </Button>
-          </div>
-          <Divider className="border-b-1 border-b-gray-300" />
+          <CardTask setTask={setTask} moreInfo={true} task={task} />
 
-          <div className="w-full">
-            <CardTask setTask={setTask} moreInfo={true} task={task} />
+          <div className="mt-8 ">
+            <p className="text-2xl my-4">Comments:</p>
+            <div className="flex flex-col gap-5">
+              <FormComment />
 
-            <div className="mt-8 ">
-              <p className="text-2xl my-4">Comments:</p>
-              <div className="flex flex-col gap-5">
-                <FormComment />
-
-                <div className="flex items-center flex-wrap gap-4">
-                  {task.comments && task.comments.length > 0 ? (
-                    task.comments.map((comment: Comment) => (
-                      <CommentNode key={comment.id} comment={comment} />
-                    ))
-                  ) : (
-                    <p>No comments yet</p>
-                  )}
-                </div>
+              <div className="flex items-center flex-wrap gap-4">
+                {task.comments && task.comments.length > 0 ? (
+                  task.comments.map((comment: Comment) => (
+                    <CommentNode key={comment.id} comment={comment} />
+                  ))
+                ) : (
+                  <p>No comments yet</p>
+                )}
               </div>
             </div>
           </div>
         </div>
-      </TaskContext.Provider>
+      </div>
     </>
   );
 };
 
 const CommentNode = ({ comment }: { comment: Comment }) => {
-  const { task, setTasks } = useTaskContext();
+  const { task, setTask } = useSelectedTaskStore();
 
   const deleteComment = async () => {
     await commentService.deleteComment(comment.id);
 
     if (task) {
-      setTasks({ ...task, comments: task.comments.filter(c => c.id != comment.id) });
+      setTask({
+        ...task,
+        comments: task.comments.filter((c) => c.id != comment.id),
+      });
     }
   };
 
@@ -96,10 +106,7 @@ const CommentNode = ({ comment }: { comment: Comment }) => {
           okText="Yes"
           cancelText="No"
         >
-          <Button
-            color="danger"
-            variant="outlined"
-          >
+          <Button color="danger" variant="outlined">
             <FaTrash />
           </Button>
         </Popconfirm>
@@ -112,7 +119,7 @@ const CommentNode = ({ comment }: { comment: Comment }) => {
 
 const FormComment = () => {
   const [form] = Form.useForm();
-  const { task, setTasks } = useTaskContext();
+  const { task, setTask } = useSelectedTaskStore();
 
   const handleCreateComment = async () => {
     await form.validateFields();
@@ -124,7 +131,7 @@ const FormComment = () => {
       ...values,
       taskId: task.id,
     });
-    setTasks({ ...task, comments: [...task.comments, newComment] });
+    setTask({ ...task, comments: [newComment, ...task.comments] });
 
     form.resetFields();
   };

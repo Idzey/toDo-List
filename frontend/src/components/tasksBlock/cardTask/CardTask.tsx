@@ -8,8 +8,8 @@ import DateTask from "./dateTask/DateTask";
 import { Link, useNavigate } from "react-router";
 import { openSuccessNotification } from "../../notification/Notification";
 import dayjs from "dayjs";
-import useTasksContext from "../../../context/TasksContext";
 import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import useTasksStore from "../../../store/tasks";
 
 const CardTask = ({
   task,
@@ -20,7 +20,7 @@ const CardTask = ({
   moreInfo?: boolean;
   setTask?: (task: Task) => void;
 }) => {
-  const { tasks, setTasksNode } = useTasksContext();
+  const { tasks, setTasks } = useTasksStore();
   const [open, setOpen] = useState(false);
 
   const handleCheckbox = async (id: string | undefined | number) => {
@@ -29,7 +29,8 @@ const CardTask = ({
     const updatedTask: Task = await taskService.updateTask(id, {
       completed: !task.completed,
     });
-    setTasksNode(
+
+    setTasks(
       tasks.map((task: Task) =>
         task.id == updatedTask.id ? updatedTask : task
       )
@@ -68,10 +69,6 @@ const CardTask = ({
                     unCheckedChildren={<CloseOutlined />}
                     checked={task.completed}
                     onChange={() => handleCheckbox(task.id)}
-                    onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }}
                   />
                 ) : (
                   <Checkbox
@@ -137,7 +134,7 @@ const GroupButton = ({
   setOpen: (open: boolean) => void;
   moreInfo?: boolean;
 }) => {
-  const { setTasksNode, tasks } = useTasksContext();
+  const { setTasks, tasks } = useTasksStore();
   const navigate = useNavigate();
 
   const handleDeleteTask = async (id: string | undefined | number) => {
@@ -145,7 +142,7 @@ const GroupButton = ({
 
     await taskService.deleteTask(id);
     openSuccessNotification("task was been deleted");
-    setTasksNode(tasks.filter((task: Task) => task.id != id));
+    setTasks(tasks.filter((task: Task) => task.id != id));
     if (moreInfo) navigate("/");
   };
 

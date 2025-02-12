@@ -1,42 +1,35 @@
 import { BrowserRouter, Route, Routes } from "react-router";
 import HomePage from "./pages/HomePage";
 import TaskPage from "./pages/TaskPage";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import Tasks from "./types/tasks";
 import taskService from "./services/taskService";
-import { TasksContext } from "./context/TasksContext";
 import Wrapper from "./components/wrapper/Wrapper";
+import useTasksStore from "./store/tasks";
 
 function App() {
-  const [tasksNode, setTasksNode] = React.useState<Tasks>([]);
-  const [tasks, setTasks] = React.useState<Tasks>([]);
+  const { setTasks } = useTasksStore();
 
   useEffect(() => {
     const fetchTasks = async () => {
-      const tasks: Tasks = await taskService.getAll();
+      const fetchTasks: Tasks = await taskService.getAll();
 
-      setTasksNode(tasks);
-      setTasks(tasks);
+      setTasks(fetchTasks);
     };
-    
+
     fetchTasks();
   }, []);
 
-  useEffect(() => {
-    setTasks(tasksNode);
-  }, [tasksNode]);
-
   return (
-    <TasksContext.Provider value={{ tasks, setTasks, tasksNode, setTasksNode }}>
+    <BrowserRouter>
       <Wrapper>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/task/:taskId" element={<TaskPage />} />
-          </Routes>
-        </BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/task/:taskId" element={<TaskPage />} />
+          <Route path="*" element={<h1 className="text-center">Not Found!</h1>} />
+        </Routes>
       </Wrapper>
-    </TasksContext.Provider>
+    </BrowserRouter>
   );
 }
 

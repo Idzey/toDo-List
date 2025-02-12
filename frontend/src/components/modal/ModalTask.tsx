@@ -2,10 +2,10 @@ import { Form, Modal } from "antd";
 import React, { useEffect } from "react";
 import Task from "../../types/task";
 import taskService from "../../services/taskService";
-import useTaskContext from "../../context/TasksContext";
 import dayjs from "dayjs";
 import FormModal from "./formModal/FormModal";
 import { openSuccessNotification } from "../notification/Notification";
+import useTasksStore from "../../store/tasks";
 
 const ModalTask = ({
   open,
@@ -20,7 +20,7 @@ const ModalTask = ({
   createModal?: boolean;
   setOpen: (open: boolean) => void;
 }) => {
-  const { tasks, setTasksNode } = useTaskContext();
+  const { tasks, setTasks } = useTasksStore();
 
   const [confirmLoading, setConfirmLoading] = React.useState(false);
   const [form] = Form.useForm();
@@ -36,7 +36,7 @@ const ModalTask = ({
         const values = await form.validateFields();
         const task: Task = await taskService.createTask(values);
 
-        setTasksNode([...tasks, task]);
+        setTasks([...tasks, task]);
 
         setConfirmLoading(false);
         form.resetFields();
@@ -58,7 +58,7 @@ const ModalTask = ({
         const values = await form.validateFields();
         const updateTask: Task = await taskService.updateTask(id, values);
 
-        setTasksNode(
+        setTasks(
           tasks.map((task: Task) => (task?.id == id ? updateTask : task))
         );
 
