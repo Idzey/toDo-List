@@ -4,34 +4,63 @@ import Task from '../types/task';
 
 const baseURL = 'http://localhost:3000/api/tasks';
 
+let token: string | null = null;
+
+const setToken = (newToken: string) => {
+    token = newToken;
+};
+
 const getAll = async () => {
-    const response = await axios.get(baseURL);
+    const response = await axios.get(baseURL, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
     const data: Tasks = await response.data;
 
     return data;
 };
 
 const getTask = async (id: string) => {
-    const response = await axios.get(`${baseURL}/${id}`);
+    const response = await axios.get(`${baseURL}/${id}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
     const data: Task = await response.data;
 
     return data;
 };
 
 const createTask = async (task: Task) => {
-    const response = await axios.post(baseURL, {...task});
+    if (!token) return null;
+    const response = await axios.post(baseURL, {...task}, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
 
     const data: Task = await response.data;
-
+ 
     return data;
 };
 
 const deleteTask = async (id: string | number) => {
-    await axios.delete(`${baseURL}/${id}`);
+    if (!token) return null;
+    await axios.delete(`${baseURL}/${id}`, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
 }
 
 const updateTask = async (id: string | number, updatedTask: any) => {
-    const response = await axios.put(`${baseURL}/${id}`, updatedTask);
+    if (!token) return null;
+    const response = await axios.put(`${baseURL}/${id}`, updatedTask, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
     const data: Task = await response.data;
 
     return data;
@@ -42,5 +71,6 @@ export default {
     getTask,
     createTask,
     deleteTask,
-    updateTask
+    updateTask,
+    setToken
 }

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import taskService from "../services/taskService";
 import { openErrorNotification } from "../components/notification/Notification";
-import { Button, Card, Divider, Form, Popconfirm } from "antd";
+import { Button, Card, Divider, Form, Popconfirm, Result } from "antd";
 import CardTask from "../components/tasksBlock/cardTask/CardTask";
 import TextArea from "antd/es/input/TextArea";
 import { FaTrash } from "react-icons/fa6";
@@ -10,18 +10,17 @@ import dayjs from "dayjs";
 import Comment from "../types/comment";
 import commentService from "../services/commentService";
 import useSelectedTaskStore from "../store/selectedTask";
-import useTasksStore from "../store/tasks";
-import Task from "../types/task";
+import useUserStore from "../store/user";
 
 const TaskPage = () => {
   const { taskId } = useParams();
-  const {tasks, setTasks} = useTasksStore();
-  const {task, setTask} = useSelectedTaskStore();
+  const { task, setTask } = useSelectedTaskStore();
   const navigate = useNavigate();
+  const { userToken } = useUserStore();
 
   useEffect(() => {
     const fetchTask = async () => {
-      if (!taskId) return;
+      if (!taskId || !userToken) return;
 
       try {
         const data = await taskService.getTask(taskId.toString());
@@ -32,22 +31,28 @@ const TaskPage = () => {
     };
 
     fetchTask();
-  }, [taskId]);
+  }, [taskId, userToken]);
 
-  useEffect(() => {
-    setTasks(
-      tasks.map((item: Task) => item.id == task?.id ? task : item)
+  if (!task)
+    return (
+      <Result
+        status="404"
+        title="404"
+        subTitle="Sorry, not data."
+        extra={[
+          <Button type="primary" key="console" onClick={() => navigate("/")}>
+            Go Home
+          </Button>,
+        ]}
+      />
     );
-  }, [task]);
-
-  if (!task) return null;
 
   return (
     <>
       <div className="w-full">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl">
-            <Link to="/">To-Do</Link> | Task - {task.title}
+            <Link to="/">To-Do</Link> / {task.title}
           </h1>
           <Button color="pink" variant="solid" onClick={() => navigate("/")}>
             Go home
@@ -96,7 +101,7 @@ const CommentNode = ({ comment }: { comment: Comment }) => {
 
   return (
     <Card
-      style={{ minWidth: 300 }}
+      style={{ width: "100%" }}
       title={<p>{dayjs(comment.createdAt).format("hh:mm, MM.DD.YYYY")}</p>}
       extra={
         <Popconfirm

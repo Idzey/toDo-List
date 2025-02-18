@@ -26,9 +26,13 @@ const CardTask = ({
   const handleCheckbox = async (id: string | undefined | number) => {
     if (id == undefined) return;
 
-    const updatedTask: Task = await taskService.updateTask(id, {
+    const updatedTask = await taskService.updateTask(id, {
       completed: !task.completed,
     });
+
+    if (!updatedTask) {
+      return;
+    }
 
     setTasks(
       tasks.map((task: Task) =>
@@ -72,6 +76,7 @@ const CardTask = ({
                   />
                 ) : (
                   <Checkbox
+                    id={task.id?.toString()}
                     style={{ transform: "scale(1.5)" }}
                     checked={task.completed}
                     onClick={(e) => {
