@@ -4,9 +4,10 @@ import middleware from './utils/middleware';
 import mongoose from 'mongoose';
 import config from './utils/config';
 import cors from 'cors';
-import commentRouter from './controllers/comments';
+import todoRouter from './controllers/todos';
 import userRouter from './controllers/users';
-import loginRouter from './controllers/login';
+import cookieParser from 'cookie-parser';
+import passport from 'passport';
 
 const app = express();
 
@@ -17,12 +18,18 @@ mongoose.connect(config.MONGODB_URI).then(() => {
 mongoose.set("strictQuery", false);
 
 app.use(express.json());
-app.use(cors());
+app.use(cookieParser());
+app.use(passport.initialize());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}));
 
 app.use('/api/tasks', taskRouter);
-app.use('/api/comments', commentRouter);
+app.use('/api/todos', todoRouter);
 app.use('/api/users', userRouter);
-app.use('/api/login', loginRouter);
 
 app.use(middleware.unknownEndpoint);
 app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

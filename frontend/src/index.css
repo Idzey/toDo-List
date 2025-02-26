@@ -1,15 +1,21 @@
 @import "tailwindcss";
 
 @theme {
-  --color-white-gray: #fafafa;
+  --color-black: #33322E;
+  --color-grey: #878787;
+  --color-aqua-dark: #8CD4CB;
+  --color-peach-dark: #F6A89E;
+  --color-yellow-dark: #F4D799;
+  --color-yellow-light: #F9F3E5;
+  --color-peach-light: #FFF0EE;
+  --color-aqua-light: #D0F4F0;
 }
 
-* {
-  box-sizing: border-box;
-}
 
 :root {
-  font-family: "Ubuntu", sans-serif;
+  min-height: 100vh;
+  min-width: 100%;
+  font-family: "Roboto", sans-serif;
   line-height: 1.5;
   font-weight: 400;
 

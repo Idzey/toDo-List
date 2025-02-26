@@ -1,33 +1,41 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Router } from "express";
 import { Task } from '../models/task';
+import passport from 'passport';
 import { User } from "../models/user";
-import config from '../utils/config';
-import { authMiddleware, UserRequest } from '../utils/authMiddleware';
+import { Todo } from "../models/todo";
 
 const taskRouter = Router();
 
-taskRouter.use(authMiddleware);
-
-taskRouter.get('/', async (req: UserRequest, res, next) => {
+taskRouter.get('/', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
     try {
-        const user = req.user;
-        const tasks = await Task.find({user: user?.id}).populate({
-            path: 'comments',
+        if (!req.user) {
+            res.status(401).json({ error: 'token missing or invalid' });
+            return;
+        }
+
+        const userId = req.user.id;
+        const tasks = await Task.find({ user: userId }).populate({
+            path: 'todos',
             options: { sort: { createdAt: -1 } },
         }).populate('user');
 
-        res.json(tasks);
+        res.status(200).json(tasks);
     } catch (error) {
         next(error);
     }
-});
+}
+);
 
-taskRouter.get('/:id', async (req: UserRequest, res, next) => {
+taskRouter.get('/:id', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
     try {
+        if (!req.user) {
+            res.status(401).json({ error: 'token missing or invalid' });
+            return;
+        }
+
         const user = req.user;
-        const task = await Task.findOne({ _id: req.params.id, user: user?.id }).populate({
-            path: 'comments',
+        const task = await Task.findOne({ _id: req.params.id, user: user.id }).populate({
+            path: 'todos',
             options: { sort: { createdAt: -1 } },
         }).populate("user");
 
@@ -37,45 +45,44 @@ taskRouter.get('/:id', async (req: UserRequest, res, next) => {
     }
 });
 
-taskRouter.post('/', async (req: UserRequest, res, next) => {
+taskRouter.post('/', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
     try {
-        let { title, completed, comments, date } = req.body;
+        let { title, color, isOpened } = req.body;
 
-        const token = req?.token;
-        if (!token) {
-            res.status(401).json({ error: 'token missing' });
+        if (!req.user) {
+            res.status(401).json({ error: 'token missing or invalid' });
             return;
         }
 
-        const decodedToken = jwt.verify(token, config.SECRET) as JwtPayload;
-        if (!decodedToken.id) {
-            res.status(401).json({ error: 'token invalid' })
-            return;
-        }
+        const user = await User.findOne({ _id: req.user.id });
 
-        const user = await User.findOne({_id: decodedToken.id});
-
-        completed = completed || false;
-        const task = new Task({ title, completed, comments, date, user: user?._id });
-        const savedTask = await task.save();
-        
+        isOpened = isOpened || true;
         if (user) {
-            await User.updateOne({_id: user._id}, { $push: { comments: savedTask.id }});
+            const task = new Task({ title, isOpened, color, user: user?._id });
+            const savedTask = await task.save();
+
+            user.tasks = [...user.tasks, savedTask._id];
+            await user.save();
+            res.status(200).json(savedTask);
         } else {
             res.status(404).json({ error: 'user not found' });
             return;
         }
-
-        res.json(savedTask);
     } catch (error) {
         next(error);
     }
 });
 
-taskRouter.put('/:id', async (req, res, next) => {
+taskRouter.put('/:id', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
     try {
-        const updatedTask = await Task.findOneAndUpdate({ _id: req.params.id }, req.body, { returnDocument: 'after' }).populate({
-            path: 'comments',
+        if (!req.user) {
+            res.status(401).json({ error: 'token missing or invalid' });
+            return;
+        }
+
+        const {id} = req.params;
+        const updatedTask = await Task.findOneAndUpdate({ _id: id, user: req.user.id }, req.body, { returnDocument: 'after' }).populate({
+            path: 'todos',
             options: { sort: { createdAt: -1 } },
         });
 
@@ -85,11 +92,25 @@ taskRouter.put('/:id', async (req, res, next) => {
     }
 });
 
-taskRouter.delete('/:id', async (req, res, next) => {
+taskRouter.delete('/:id', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
     try {
-        await Task.deleteOne({ _id: req.params.id });
+        if (!req.user) {
+            res.status(401).json({ error: 'token missing or invalid' });
+            return;
+        }
 
-        res.status(204).end();
+        const user = await User.findOne({ _id: req.user.id });
+
+        if (user) {
+            await Task.deleteOne({ _id: req.params.id });
+            await Todo.deleteMany({ taskId: req.params.id });
+            
+            const filtredTasks = user.tasks.filter(item => item.toString() != req.params.id);
+            user.tasks = filtredTasks;
+            await user.save();
+
+            res.status(204).end();
+        }
     } catch (error) {
         next(error);
     }

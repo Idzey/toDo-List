@@ -1,28 +1,28 @@
 import mongoose from 'mongoose';
 
-const taskSchema = new mongoose.Schema({
-    title: {
+const todoSchema = new mongoose.Schema({
+    name: {
         type: String,
         required: true,
     },
-    todos: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Todo",
-        default: []
-    }],
+    completed: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        ref: 'User',
         required: true,
     },
-    color: {
-        type: String,
+    taskId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Task',
         required: true,
     },
-    isOpened: Boolean,
 }, {timestamps: true});
 
-taskSchema.set('toJSON', {
+todoSchema.set('toJSON', {
     transform: (_document: mongoose.Document, returnedObject: any) => {
         returnedObject.id = returnedObject._id.toString();
         delete returnedObject._id;
@@ -30,9 +30,9 @@ taskSchema.set('toJSON', {
     }
 });
 
-const Task = mongoose.model('Task', taskSchema);
+const Todo = mongoose.model('Todo', todoSchema);
 
 export {
-    taskSchema,
-    Task
+    todoSchema,
+    Todo
 }

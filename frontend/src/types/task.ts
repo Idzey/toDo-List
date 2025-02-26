@@ -1,13 +1,13 @@
-import Comment from "./comment";
+import Todo from "./todo";
 
 type Task = {
-    id: number,
+    id: number | string,
     title: string,
-    completed: boolean,
     createdAt: string,
     updatedAt: string,
-    comments: Comment[],
-    date: Date
+    todos: Todo[],
+    color: string,
+    isOpened: boolean,
 }
 
 export default Task;

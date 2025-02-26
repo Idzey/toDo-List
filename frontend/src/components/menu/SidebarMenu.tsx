@@ -3,14 +3,14 @@ import { Menu } from "antd";
 import { Link } from "react-router";
 import ModalAuth from "../modal/ModalAuth";
 import { useState } from "react";
-import useUserStore from "../../store/user";
-import taskService from "../../services/taskService";
 import { openSuccessNotification } from "../notification/Notification";
+import useUserStore from "../../store/user";
+import userService from "../../services/userService";
 
 const SidebarMenu = () => {
   const [signupOpen, setSignupOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
-  const { userToken, logoutUser } = useUserStore();
+  const {user, logoutUser} = useUserStore();
 
   const menuItems = [
     {
@@ -18,25 +18,24 @@ const SidebarMenu = () => {
       label: <Link to="/">Home</Link>,
       icon: <HomeOutlined />,
     },
-    userToken
+    user
       ? {
           key: "account",
           label: <Link to="/account">Account</Link>,
           icon: <UserOutlined />,
         }
       : null,
-    userToken ? {
+    user ? {
       key: "logout",
       label: "Logout",
       icon: <LogoutOutlined />,
       onClick: () => {
-        window.localStorage.removeItem("userToken");
-        taskService.setToken("");
+        userService.logoutUser();
         logoutUser();
         openSuccessNotification("you have logged out");
       },
     } : null,
-    !userToken
+    !user
       ? {
           key: "singup",
           label: "Sign up",
@@ -44,7 +43,7 @@ const SidebarMenu = () => {
           onClick: () => setSignupOpen(true),
         }
       : null,
-    !userToken
+    !user
       ? {
           key: "login",
           label: "Login",

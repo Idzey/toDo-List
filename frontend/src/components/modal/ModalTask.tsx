@@ -2,7 +2,6 @@ import { Form, Modal } from "antd";
 import React, { useEffect } from "react";
 import Task from "../../types/task";
 import taskService from "../../services/taskService";
-import dayjs from "dayjs";
 import FormModal from "./formModal/FormModal";
 import { openSuccessNotification } from "../notification/Notification";
 import useTasksStore from "../../store/tasks";
@@ -29,12 +28,27 @@ const ModalTask = ({
     setOpen(false);
   };
 
+  const randomColor = () => {
+    const colors = [
+      "#8CD4CB",
+      "#F6A89E",
+      "#F4D799",
+      "#F9F3E5",
+      "#FFF0EE",
+      "#D0F4F0",
+    ];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
   const handleCreateTask = () => {
     const createTask = async () => {
       try {
         setConfirmLoading(true);
         const values = await form.validateFields();
-        const task: Task = await taskService.createTask(values);
+        const task: Task = await taskService.createTask({
+          ...values,
+          color: randomColor(),
+        });
 
         setTasks([...tasks, task]);
 
@@ -83,8 +97,6 @@ const ModalTask = ({
     if (task) {
       form.setFieldsValue({
         title: task.title,
-        completed: task.completed,
-        date: dayjs(task.date),
       });
     }
   }, [open, form, task]);

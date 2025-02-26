@@ -1,5 +1,4 @@
-import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
-import { Form, FormInstance, Input, Modal } from "antd";
+import { Form, Modal } from "antd";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import {
@@ -11,6 +10,9 @@ import useUserStore from "../../store/user";
 import taskService from "../../services/taskService";
 import Tasks from "../../types/tasks";
 import useTasksStore from "../../store/tasks";
+import LoginForm from "./formModal/LoginForm";
+import SignupForm from "./formModal/SignupForm";
+import axios from "axios";
 
 const ModalAuth = ({
   login,
@@ -23,7 +25,7 @@ const ModalAuth = ({
 }) => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const navigate = useNavigate();
-  const { setUserToken, setUser } = useUserStore();
+  const { setUser } = useUserStore();
   const { setTasks } = useTasksStore();
 
   const handleCancel = () => {
@@ -32,47 +34,55 @@ const ModalAuth = ({
 
   const [form] = Form.useForm();
 
-  const handleForm = login
-    ? async () => {
-        try {
-          setConfirmLoading(true);
-          const values = await form.validateFields();
-          const data = await userService.signupUser({username: values.usernameLogin, password: values.passwordLogin});
+  const handleLogin = async () => {
+    try {
+      setConfirmLoading(true);
+      const values = await form.validateFields();
 
-          window.localStorage.setItem("userToken", data.token);
-          await taskService.setToken(data.token);
-          setUserToken(data.token);
-          setUser({ username: data.username, tasks: data.tasks });
-
-          const fetchTasks: Tasks = await taskService.getAll();
-          setTasks(fetchTasks);
-
-          openSuccessNotification("you are logged in to your account");
-          setConfirmLoading(false);
-          setOpen(false);
-          navigate("/");
-        } catch {
-          setConfirmLoading(false);
-          openErrorNotification("not register");
-          setOpen(false);
-        }
+      if (values) {
+        const data = await userService.loginUser({email: values.emailLogin, password: values.passwordLogin});
+  
+        setUser({ username: data.username, tasks: data.tasks });
+  
+        const fetchTasks: Tasks = await taskService.getAll();
+        setTasks(fetchTasks);
+  
+        openSuccessNotification("you are logged in to your account");
+        setConfirmLoading(false);
+        setOpen(false);
+        navigate("/");
       }
-      : async () => {
-        try {
-          setConfirmLoading(true);
-          const values = await form.validateFields();
-          await userService.loginUser({username: values.usernameSignup, password: values.passwordSignup});
+    } catch {
+      setConfirmLoading(false);
+      openErrorNotification("not register");
+    }
+  };
 
-          openSuccessNotification("you have registered an account");
-          setConfirmLoading(false);
-          setOpen(false);
-          navigate("/");
-        } catch {
-          setConfirmLoading(false);
-          openErrorNotification("not register");
-          setOpen(false);
-        }
-      };
+  const handleSignup = async () => {
+    try {
+      setConfirmLoading(true);
+      const values = await form.validateFields();
+
+      if (values) {
+        await userService.signupUser({username: values.usernameSignup, email: values.emailSignup, password: values.passwordSignup});
+  
+        openSuccessNotification("a confirmation link has been sent to your email address. Please check your inbox and follow the instructions to verify your account.");
+        setConfirmLoading(false);
+        setOpen(false);
+        navigate("/");
+      }
+    } catch (error) {
+      setConfirmLoading(false);
+      
+      if (axios.isAxiosError(error)) {
+        if (error.response?.data?.error === "email already exists") return openErrorNotification("email already exists");
+        
+        openErrorNotification("not register, please try again");
+      }
+    }
+  };
+
+  const handleForm = login ? handleLogin : handleSignup;
 
   return (
     <>
@@ -85,59 +95,20 @@ const ModalAuth = ({
         onCancel={handleCancel}
       >
         <div className="mt-4">
-          <AuthForm
-            login={login}
+          {login ? <LoginForm
             form={form}
-            handleForm={handleForm}
+            handleForm={handleLogin}
+            confirmLoading={confirmLoading}
+          /> : 
+          <SignupForm
+            form={form}
+            handleForm={handleSignup}
             confirmLoading={confirmLoading}
           />
+          }
         </div>
       </Modal>
     </>
-  );
-};
-
-const AuthForm = ({
-  form,
-  confirmLoading,
-  handleForm,
-  login
-}: {
-  login: boolean;
-  form: FormInstance;
-  confirmLoading: boolean;
-  handleForm: () => void;
-}) => {
-  return (
-    <Form
-      key={login ? "login": "signup"}
-      disabled={confirmLoading}
-      form={form}
-      labelCol={{ span: 5 }}
-      style={{ maxWidth: 1000 }}
-      onFinish={handleForm}
-      autoComplete="off"
-    >
-      <Form.Item
-        label="Username"
-        name={"username" + (login ? "Login": "Signup")}
-        rules={[{ required: true, message: "Please input your username!" }]}
-      >
-        <Input placeholder="..." />
-      </Form.Item>
-      <Form.Item
-        label="Password"
-        name={"password" + (login ? "Login": "Signup")}
-        rules={[{ required: true, message: "Please input your password!" }]}
-      >
-        <Input.Password
-          placeholder="..."
-          iconRender={(visible) =>
-            visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-          }
-        />
-      </Form.Item>
-    </Form>
   );
 };
 

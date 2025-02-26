@@ -4,7 +4,6 @@ const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
-        unique: true
     },
     password: {
         type: String,
@@ -15,7 +14,12 @@ const userSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "Task"
         }
-    ]
+    ],
+    email: {
+        unique: true,
+        type: String,
+        required: true
+    }
 });
 
 userSchema.set('toJSON', {

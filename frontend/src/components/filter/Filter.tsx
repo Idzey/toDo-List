@@ -1,8 +1,8 @@
-import { Button, DatePicker, Form, Input } from "antd";
+import { Button, Form, Input } from "antd";
 import useFilterStore from "../../store/filter";
 
 const Filter = () => {
-  const {filterTitle, filterDate, setFilterDate, setFilterTitle, resetFilter} = useFilterStore();
+  const {filterTitle, setFilterTitle, resetFilter} = useFilterStore();
   
   const [form] = Form.useForm();
 
@@ -14,13 +14,6 @@ const Filter = () => {
             onChange={(e) => setFilterTitle(e.target.value)}
             value={filterTitle}
             placeholder="Filter by title"
-          />
-        </Form.Item>
-        <Form.Item>
-          <DatePicker
-            onChange={(e) => setFilterDate(e)}
-            value={filterDate}
-            placeholder="Filter by date"
           />
         </Form.Item>
         <Form.Item>
