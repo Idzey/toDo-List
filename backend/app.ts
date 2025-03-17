@@ -8,6 +8,7 @@ import todoRouter from './controllers/todos';
 import userRouter from './controllers/users';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
+import calendarRouter from './controllers/calendar';
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use(cors({
 app.use('/api/tasks', taskRouter);
 app.use('/api/todos', todoRouter);
 app.use('/api/users', userRouter);
+app.use('/api/calendar', calendarRouter);
 
 app.use(middleware.unknownEndpoint);
 app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

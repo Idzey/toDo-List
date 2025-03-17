@@ -10,7 +10,6 @@ const signupUser = async ({ username, password, email }: { username: string, ema
 
 const loginUser = async ({ email, password }: { email: string, password: string }) => {
     const response = await axios.post(`${baseURL}/login`, { email, password });
-
     return response.data;
 }
 

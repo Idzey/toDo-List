@@ -19,7 +19,13 @@ const userSchema = new mongoose.Schema({
         unique: true,
         type: String,
         required: true
-    }
+    },
+    calendarTasks: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Calendar"
+        }
+    ]
 });
 
 userSchema.set('toJSON', {

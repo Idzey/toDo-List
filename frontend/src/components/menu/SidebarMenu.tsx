@@ -1,4 +1,10 @@
-import { HomeOutlined, KeyOutlined, LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  CalendarOutlined,
+  HomeOutlined,
+  KeyOutlined,
+  LogoutOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import { Menu } from "antd";
 import { Link } from "react-router";
 import ModalAuth from "../modal/ModalAuth";
@@ -10,7 +16,7 @@ import userService from "../../services/userService";
 const SidebarMenu = () => {
   const [signupOpen, setSignupOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
-  const {user, logoutUser} = useUserStore();
+  const { user, logoutUser } = useUserStore();
 
   const menuItems = [
     {
@@ -25,16 +31,25 @@ const SidebarMenu = () => {
           icon: <UserOutlined />,
         }
       : null,
-    user ? {
-      key: "logout",
-      label: "Logout",
-      icon: <LogoutOutlined />,
-      onClick: () => {
-        userService.logoutUser();
-        logoutUser();
-        openSuccessNotification("you have logged out");
-      },
-    } : null,
+    user
+      ? {
+          key: "calendar",
+          label: <Link to="/calendar">Calendar</Link>,
+          icon: <CalendarOutlined />,
+        }
+      : null,
+    user
+      ? {
+          key: "logout",
+          label: "Logout",
+          icon: <LogoutOutlined />,
+          onClick: () => {
+            userService.logoutUser();
+            logoutUser();
+            openSuccessNotification("you have logged out");
+          },
+        }
+      : null,
     !user
       ? {
           key: "singup",
