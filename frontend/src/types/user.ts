@@ -1,10 +1,10 @@
-import { CalendarTodo } from "./calendar";
+import { TCalendarTask } from "./calendar";
 import Tasks from "./tasks";
 
 type User = {
     username: string,
     tasks: Tasks,
-    calendarTasks: CalendarTodo[],
+    calendarTasks: TCalendarTask[],
 }
 
 export default User;

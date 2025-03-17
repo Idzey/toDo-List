@@ -8,6 +8,7 @@ const REFRESH_SECRET = process.env.REFRESH_SECRET || "";
 const EMAIL_SECRET = process.env.EMAIL_SECRET || "";
 const SMTP_USER = process.env.SMTP_USER || "";
 const SMTP_PASS = process.env.SMTP_PASS || "";
+const CLIENT_URL = process.env.CLIENT_URL || "";
 
 export default {
     PORT,
@@ -16,5 +17,6 @@ export default {
     REFRESH_SECRET,
     EMAIL_SECRET,
     SMTP_USER,
-    SMTP_PASS
+    SMTP_PASS,
+    CLIENT_URL
 };

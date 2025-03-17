@@ -127,4 +127,35 @@ userRouter.get("/logout", passport.authenticate('jwt', { session: false }), (_re
     res.status(200).send("Logged out");
 });
 
+userRouter.put("/", passport.authenticate('jwt', { session: false }), async (req, res, next) => {
+    try {
+        if (req.user?.id) {
+            if (req.body.password) {
+                req.body.password = await bcrypt.hash(req.body.password, 10);
+            }
+            const user = await User.findOneAndUpdate({ _id: req.user.id }, req.body, { new: true });
+            res.json(user);
+            return;
+        } else {
+            res.status(401);
+        }
+    } catch (err) {
+        next(err);
+    }
+});
+
+userRouter.delete("/", passport.authenticate('jwt', { session: false }), async (req, res, next) => {
+    try {
+        if (req.user?.id) {
+            await User.findOneAndDelete({_id: req.user.id});
+            res.sendStatus(200);
+            return;
+        }
+
+        res.sendStatus(401);
+    } catch (err) {
+        next(err);
+    }
+});
+
 export default userRouter;

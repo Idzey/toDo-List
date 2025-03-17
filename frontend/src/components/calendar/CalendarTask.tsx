@@ -5,15 +5,15 @@ import type { TCalendarTask, TCalendarTodo } from "../../types/calendar";
 import { Link } from "react-router";
 import useCalendarStore from "../../store/calendar";
 
-const CalendarTask = ({ task }: { task: TCalendarTask}) => {
+const CalendarTask = ({ task, typeTask }: { task: TCalendarTask, typeTask: "week" | "month" | "year"}) => {
     return (
       <>
         <Link
-          to={`/calendarTask/${task.id}`}
+          to={`/calendarTask/${task.id}?typeTask=${typeTask}`}
           className="w-full md:w-[calc(33%-16px)] lg:w-[calc(25%-16px)]"
         >
           <div
-            className={"card flex flex-col w-full text-black shadow-xl rounded-2xl border-black border-2 " + task.color}
+            className="card flex flex-col w-full text-black shadow-xl rounded-2xl border-black border-2"
           >
             <div className="w-full flex justify-between items-center py-3 px-4 text-2xl font-bold border-b-black border-b-2">
               <span>{task.title}</span>
@@ -24,7 +24,7 @@ const CalendarTask = ({ task }: { task: TCalendarTask}) => {
                   <p className="text-lg font-bold text-center">No todos</p>
                 ) : (
                   task.todos.map((todo: TCalendarTodo) => (
-                    <ToDo key={todo.id} task={task} todo={todo} />
+                    <ToDo key={todo.id} todo={todo} />
                   ))
                 )}
               </div>
@@ -35,45 +35,24 @@ const CalendarTask = ({ task }: { task: TCalendarTask}) => {
     );
   };
   
-  const ToDo = ({ todo, task}: { task: TCalendarTask, todo: TCalendarTodo}) => {
-    const {calendarTasksWeek, calendarTasksMonth, calendarTasksYear, setCalendarTasksMonth, setCalendarTasksWeek, setCalendarTasksYear} = useCalendarStore();
+  const ToDo = ({ todo}: { todo: TCalendarTodo}) => {
+    const {generateCalendar} = useCalendarStore();
 
     const handleCheckbox = async (id: number) => {
-      const updatedTodo = await calendarService.updateCalendar(id, { completed: !todo.completed });
+      await calendarService.updateCalendar(id, { completed: !todo.completed });
 
-      setCalendarTasksMonth(calendarTasksMonth.map((item: TCalendarTask) =>
-        item.id !== task.id ? item : {
-          ...task,
-          todos: task.todos.map((item: TCalendarTodo) =>
-            item.id !== updatedTodo.id ? item : updatedTodo
-          ),
-        }
-      ));
-      setCalendarTasksWeek(calendarTasksWeek.map((item: TCalendarTask) =>
-        item.id !== task.id ? item : {
-          ...task,
-          todos: task.todos.map((item: TCalendarTodo) =>
-            item.id !== updatedTodo.id ? item : updatedTodo
-          ),
-        }
-      ));
-      setCalendarTasksYear(calendarTasksYear.map((item: TCalendarTask) =>
-        item.id !== task.id ? item : {
-          ...task,
-          todos: task.todos.map((item: TCalendarTodo) =>
-            item.id !== updatedTodo.id ? item : updatedTodo
-          ),
-        }
-      ));
+      generateCalendar();
     };
   
-    const deleteTodo = (id: number) => {
-      console.log(id);
+    const deleteTodo = async (id: number) => {
+      await calendarService.deleteCalendar(id);
+      
+      generateCalendar();
     };
   
     return (
       <div className="flex gap-4 lg:gap-2">
-        <p className="w-full text-lg lg:text-lg lg:pb-1 border-b-black border-b-1">
+        <p className="w-full text-lg lg:text-lg lg:pb-1 border-b-black border-b-1 overflow-hidden">
           {todo.name.charAt(0).toUpperCase() + todo.name.slice(1)}
         </p>
         <div className="flex gap-4 lg:gap-2 items-center">
@@ -90,7 +69,12 @@ const CalendarTask = ({ task }: { task: TCalendarTask}) => {
           />
   
           <Button
-            onClick={() => deleteTodo(todo.id)}
+            onClick={(evt) => {
+              evt.stopPropagation();
+              evt.preventDefault();
+
+              deleteTodo(todo.id);
+            }}
             size={window.innerWidth < 768 ? "large" : "small"}
             color="danger"
             variant="outlined"

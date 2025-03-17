@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseURL = 'http://localhost:3000/api/users';
+const baseURL = `${import.meta.env.VITE_API_URL}/users`;
 
 const signupUser = async ({ username, password, email }: { username: string, email: string, password: string }) => {
     const response = await axios.post(`${baseURL}/signup`, { username, email, password });
@@ -36,11 +36,23 @@ const refreshUserToken = async () => {
     }
 };
 
+const deleteUser = async () => {
+    await axios.delete(baseURL);
+}
+
+const updateUser = async (data: any) => {
+    const response = await axios.put(baseURL, data);
+
+    return response.data;
+};
+
 export default {
     loginUser,
     signupUser,
     loginUserForToken,
     logoutUser,
     verifyEmail,
-    refreshUserToken
+    refreshUserToken,
+    deleteUser,
+    updateUser
 }

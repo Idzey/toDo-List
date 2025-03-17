@@ -1,8 +1,7 @@
 import axios from 'axios';
 import Todo from '../types/todo';
 
-const baseURL = 'http://localhost:3000/api/todos';
-
+const baseURL = `${import.meta.env.VITE_API_URL}/todos`;
 
 const getTodo = async (id: string) => {
     const response = await axios.get(`${baseURL}/${id}`);

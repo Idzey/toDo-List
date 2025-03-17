@@ -42,7 +42,7 @@ const ModalAuth = ({
       if (values) {
         const data = await userService.loginUser({email: values.emailLogin, password: values.passwordLogin});
   
-        setUser({ username: data.username, tasks: data.tasks });
+        setUser({ username: data.username, tasks: data.tasks, calendarTasks: data.calendarTasks });
   
         const fetchTasks: Tasks = await taskService.getAll();
         setTasks(fetchTasks);

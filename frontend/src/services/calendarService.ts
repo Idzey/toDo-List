@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { TCalendarTodo } from '../types/calendar';
 
-const baseURL = 'http://localhost:3000/api/calendar';
+const baseURL = `${import.meta.env.VITE_API_URL}/calendar`;
 
 const getAll = async () => {
     const response = await axios.get(baseURL);

@@ -16,29 +16,10 @@ import axios from "axios";
 import VerifyEmail from "./pages/VerifyEmail";
 import { openErrorNotification } from "./components/notification/Notification";
 import CalendarPage from "./pages/CalendarPage";
-import dayjs from "dayjs";
-import calendarService from "./services/calendarService";
-import type { TCalendarTask, TCalendarTodo } from "./types/calendar";
-import isoWeek from "dayjs/plugin/isoWeek";
 import useCalendarStore from "./store/calendar";
+import NotFoundPage from "./pages/NotFoundPage";
 
-dayjs.extend(isoWeek);
 axios.defaults.withCredentials = true;
-
-const colors = [
-  "bg-peach-light",
-  "bg-peach-dark",
-  "bg-yellow-light",
-  "bg-yellow-dark",
-  "bg-aqua-light",
-  "bg-aqua-dark",
-];
-
-type TCalendarData = {
-  week: TCalendarTask[];
-  month: TCalendarTask[];
-  year: TCalendarTask[];
-};
 
 function App() {
   const { setTasks } = useTasksStore();
@@ -47,12 +28,7 @@ function App() {
     localStorage.getItem("isOpenMenu") == "true"
   );
   const [isLoading, setIsLoading] = useState(false);
-  const [calendarTodos, setCalendarTodos] = useState<TCalendarTodo[]>([]);
-  const {setCalendarTasksMonth,setCalendarTasksWeek,setCalendarTasksYear} = useCalendarStore();
-
-  const randomizeColor = () => {
-    return colors[Math.floor(Math.random() * colors.length)];
-  };
+  const {generateCalendar} = useCalendarStore();  
 
   const changeOpenMenu = (value: boolean) => {
     setCollapsed(value);
@@ -113,85 +89,12 @@ function App() {
   }, [logoutUser, setTasks, setUser]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const fetchTodo: TCalendarTodo[] = await calendarService.getAll();
-      setCalendarTodos(fetchTodo);
-    };
-
-    fetchData();
-  }, []);
-
-  useEffect(() => {
     setIsLoading(true);
 
-    if (user) {
-      const calendarData: TCalendarData = {
-        week: [],
-        month: [],
-        year: []
-      };
-
-      let weekDate = dayjs().isoWeekday(1);
-      for (let i = 0; i < 7; i++) {
-        const todos: TCalendarTodo[] = calendarTodos.filter(
-          (task: TCalendarTodo) => weekDate.isSame(task.date, "day")
-        ) || [];
-
-        calendarData.week.push({
-          id: i,
-          title: weekDate.format("dddd"),
-          todos,
-          color: randomizeColor(),
-        });
-
-        weekDate = weekDate.add(1, "day");
-      }
-
-
-      const daysInMonth = dayjs().daysInMonth();
-      let monthDate = dayjs().startOf('month');
-      
-      for (let i = 0; i < daysInMonth; i++) {
-        const todos: TCalendarTodo[] = calendarTodos.filter(
-          (task: TCalendarTodo) => monthDate.isSame(task.date, "day")
-        ) || [];
-
-        calendarData.month.push({
-          id: i,
-          title: monthDate.format("D MMM"),
-          todos,
-          color: randomizeColor(),
-        });
-
-        monthDate = monthDate.add(1, "day");
-      }
-
-      let yearDate = dayjs().startOf('year');
-      for (let i = 0; i < 12; i++) {
-        const monthTodos: TCalendarTodo[] = calendarTodos.filter(
-          (task: TCalendarTodo) => {
-            const taskDate = dayjs(task.date);
-            return taskDate.month() === i && taskDate.year() === yearDate.year();
-          }
-        ) || [];
-
-        calendarData.year.push({
-          id: i,
-          title: yearDate.format("MMMM"),
-          todos: monthTodos,
-          color: randomizeColor(),
-        });
-
-        yearDate = yearDate.add(1, "month");
-      }
-
-      setCalendarTasksWeek(calendarData.week);
-      setCalendarTasksMonth(calendarData.month);
-      setCalendarTasksYear(calendarData.year);
-    }
+    generateCalendar();
     
     setIsLoading(false);
-  }, [user, calendarTodos]);
+  }, [user]);
 
   return (
     <BrowserRouter>
@@ -220,7 +123,7 @@ function App() {
             />
             <Route
               path="*"
-              element={<h1 className="text-center">Not Found!</h1>}
+              element={<NotFoundPage />}
             />
           </Routes>
         </Wrapper>

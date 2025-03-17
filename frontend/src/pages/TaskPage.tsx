@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import taskService from "../services/taskService";
-import {
-  openErrorNotification,
-  openSuccessNotification,
-} from "../components/notification/Notification";
+import { openErrorNotification, openSuccessNotification } from "../components/notification/Notification";
 import { Button, Divider, Form, Input, Popconfirm, Result, Spin } from "antd";
 import CardTask from "../components/tasksBlock/cardTask/CardTask";
 import todoService from "../services/todoService";
@@ -13,7 +10,7 @@ import useTasksStore from "../store/tasks";
 import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import ModalTask from "../components/modal/ModalTask";
 import calendarService from "../services/calendarService";
-import type { TCalendarTask } from "../types/calendar";
+import type { TCalendarTask, TCalendarTodo } from "../types/calendar";
 import CalendarTask from "../components/calendar/CalendarTask";
 import useCalendarStore from "../store/calendar";
 
@@ -24,6 +21,13 @@ const TaskPage = ({isCalendar}: {isCalendar?: boolean}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const {
+    calendarTasksMonth, 
+    calendarTasksWeek, 
+    calendarTasksYear, 
+  } = useCalendarStore();
+  const [searchParams] = useSearchParams();
+  const typeTask = searchParams.get("typeTask") as "week" | "month" | "year" || "month";
 
   useEffect(() => {
     const fetchTask = async () => {
@@ -32,8 +36,21 @@ const TaskPage = ({isCalendar}: {isCalendar?: boolean}) => {
       setIsLoading(true);
       try {
         if (isCalendar) {
-          // const data = await calendarService.getCalendarTask(taskId);
-          setSelectedTask(data);
+          let task: TCalendarTask | undefined;
+
+          switch (typeTask) {
+            case "week":
+              task = calendarTasksWeek.find((item: TCalendarTask) => item.id === Number(taskId));
+              break;
+            case "month":
+              task = calendarTasksMonth.find((item: TCalendarTask) => item.id === Number(taskId));
+              break;
+            case "year":
+              task = calendarTasksYear.find((item: TCalendarTask) => item.id === Number(taskId));
+              break;
+          }
+
+          setSelectedTask(task);
         } else {
           const data = await taskService.getTask(taskId.toString());
           setSelectedTask(data);
@@ -48,7 +65,7 @@ const TaskPage = ({isCalendar}: {isCalendar?: boolean}) => {
     };
 
     fetchTask();
-  }, [taskId]);
+  }, [taskId, isCalendar, searchParams, calendarTasksMonth, calendarTasksWeek, calendarTasksYear, typeTask]);
 
   if (isLoading) return <Spin size="large" fullscreen />;
 
@@ -66,24 +83,23 @@ const TaskPage = ({isCalendar}: {isCalendar?: boolean}) => {
       />
     );
   }
+  
   if (!selectedTask) return null;
 
   return (
     <>
-    {
-      selectedTask && "createdAt" in selectedTask && (
+      {selectedTask && "createdAt" in selectedTask && (
         <ModalTask
           task={selectedTask}
           setTask={setSelectedTask}
           open={openModal}
           setOpen={setOpenModal}
         />
-      ) 
-    }
+      )}
       <div className="w-full">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl">
-            <Link to="/">To-Do</Link> / {selectedTask.title}
+            <Link to="/">To-Do</Link> / {isCalendar && <><Link to="/calendar">Calendar</Link> /</>} {selectedTask.title}
           </h1>
           <Button color="pink" variant="solid" onClick={() => navigate("/")}>
             Go home
@@ -98,12 +114,13 @@ const TaskPage = ({isCalendar}: {isCalendar?: boolean}) => {
               task={selectedTask}
             />
           ) : (
-            <CalendarTask task={selectedTask} />
+            <CalendarTask typeTask={typeTask} task={selectedTask} />
           )}
         </div>
 
         <div className="h-3/4 w-full flex">
           <FormTodo
+            isCalendar={isCalendar}
             setModalOpen={setOpenModal}
             task={selectedTask}
             setTask={setSelectedTask}
@@ -118,21 +135,16 @@ const FormTodo = ({
   task,
   setTask,
   setModalOpen,
+  isCalendar
 }: {
   task: Task | TCalendarTask;
   setTask: (task: Task | TCalendarTask) => void;
   setModalOpen: (open: boolean) => void;
+  isCalendar?: boolean;
 }) => {
   const [form] = Form.useForm();
   const { tasks, setTasks } = useTasksStore();
-  const {
-    calendarTasksMonth, 
-    calendarTasksWeek, 
-    calendarTasksYear, 
-    setCalendarTasksMonth, 
-    setCalendarTasksWeek, 
-    setCalendarTasksYear
-  } = useCalendarStore();
+  const { generateCalendar } = useCalendarStore();
   const navigate = useNavigate();
 
   const handleCreateTodo = async () => {
@@ -161,20 +173,8 @@ const FormTodo = ({
           taskId: task.id,
         });
 
-        const updateCalendarTasks = (tasksList: TCalendarTask[]) => {
-          return tasksList.map((item: TCalendarTask) =>
-            item.id !== task.id ? item : { 
-              ...item, 
-              todos: [...(item.todos || []), newTodo]
-            }
-          );
-        };
-
-        setCalendarTasksWeek(updateCalendarTasks(calendarTasksWeek));
-        setCalendarTasksMonth(updateCalendarTasks(calendarTasksMonth));
-        setCalendarTasksYear(updateCalendarTasks(calendarTasksYear));
+        generateCalendar();
         
-        // Also update the current selected task
         setTask({ 
           ...task, 
           todos: [...(task.todos || []), newTodo] 
@@ -191,13 +191,12 @@ const FormTodo = ({
 
   const deleteTask = async (taskId: string | number) => {
     try {
-      if (isCalendarTask) {
-        await calendarService.deleteCalendarTask(taskId);
-        
-        // Update calendar stores
-        setCalendarTasksWeek(calendarTasksWeek.filter(item => item.id !== taskId));
-        setCalendarTasksMonth(calendarTasksMonth.filter(item => item.id !== taskId));
-        setCalendarTasksYear(calendarTasksYear.filter(item => item.id !== taskId));
+      if (isCalendar) {
+        (task.todos as TCalendarTodo[]).forEach(async (todo: TCalendarTodo) => {
+          await calendarService.deleteCalendar(todo.id);
+
+          generateCalendar();
+        });
         
         navigate("/calendar");
         openSuccessNotification("Calendar task deleted");
@@ -250,7 +249,7 @@ const FormTodo = ({
       </Form>
 
       <div className="flex items-center gap-4">
-        {!isCalendarTask && (
+        {!isCalendar && (
           <Button
             onClick={() => setModalOpen(true)}
             size="large"
@@ -263,8 +262,8 @@ const FormTodo = ({
         )}
 
         <Popconfirm
-          title={`Delete the ${isCalendarTask ? 'calendar task' : 'task'}`}
-          description={`Are you sure to delete this ${isCalendarTask ? 'calendar task' : 'task'}?`}
+          title={`Delete the ${isCalendar ? 'calendar task' : 'task'}`}
+          description={`Are you sure to delete this ${isCalendar ? 'calendar task' : 'task'}?`}
           onConfirm={() => deleteTask(task.id)}
           okText="Yes"
           cancelText="No"
@@ -275,7 +274,7 @@ const FormTodo = ({
             variant="solid"
             icon={<DeleteOutlined />}
           >
-            Delete {isCalendarTask ? 'calendar task' : 'task'}
+            Delete {isCalendar ? 'calendar task' : 'task'}
           </Button>
         </Popconfirm>
       </div>

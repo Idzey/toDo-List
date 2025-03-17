@@ -50,7 +50,7 @@ const CardTask = ({
             }}
           >
             <div className="flex w-full items-center py-3 border-b-black border-b-2">
-              <h2 className="ms-4 text-2xl font-bold">
+              <h2 className="ms-4 text-2xl font-bold ovehflow-hidden">
                 <span>
                   {task.title.charAt(0).toUpperCase() + task.title.slice(1)}
                 </span>
