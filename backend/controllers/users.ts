@@ -56,8 +56,8 @@ userRouter.get("/verifyEmail/:token", async (req, res, next) => {
                 const userToken = generateAccessToken(user._id);
                 const refreshToken = generateRefreshToken(user._id);
     
-                res.cookie("userToken", userToken, { httpOnly: true, maxAge: 30 * 60 * 1000, sameSite: 'none' });
-                res.cookie("refreshToken", refreshToken, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'none' });
+                res.cookie("userToken", userToken, { httpOnly: true, maxAge: 30 * 60 * 1000, sameSite: 'none', secure: true });
+                res.cookie("refreshToken", refreshToken, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'none', secure: true });
     
                 return res.status(200).json(user);
             } catch (error) {
@@ -87,8 +87,8 @@ userRouter.post("/login", async (req, res, next) => {
         const userToken = generateAccessToken(user._id);
         const refreshToken = generateRefreshToken(user._id);
 
-        res.cookie("userToken", userToken, { httpOnly: true, maxAge: 30 * 60 * 1000, sameSite: 'none' });
-        res.cookie("refreshToken", refreshToken, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'none' });
+        res.cookie("userToken", userToken, { httpOnly: true, maxAge: 30 * 60 * 1000, sameSite: 'none', secure: true });
+        res.cookie("refreshToken", refreshToken, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'none', secure: true });
 
         res.status(201).send(user);
     } catch (error) {
@@ -116,7 +116,7 @@ userRouter.get("/refresh", passport.authenticate('jwt', { session: false }), (re
 
         const userToken = jwt.sign({ id: decoded.id }, config.JWT_SECRET, { expiresIn: '30m' });
         res.clearCookie("userToken");
-        res.cookie("userToken", userToken, { httpOnly: true, maxAge: 30 * 60 * 1000, sameSite: 'none' });
+        res.cookie("userToken", userToken, { httpOnly: true, maxAge: 30 * 60 * 1000, sameSite: 'none', secure: true });
         return res.status(200).json({ message: "token refreshed" });
     });    
 });
