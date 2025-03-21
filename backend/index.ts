@@ -1,7 +1,6 @@
 import app from "./app";
+import config from "./utils/config";
 
-app.get("/", (_req, res) => {
-    res.send("Hello from Express on Vercel!");
+app.listen(config.PORT, () => {
+  console.log("Server is running on port 3000");
 });
-
-module.exports = app;
