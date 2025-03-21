@@ -91,10 +91,12 @@ function App() {
   useEffect(() => {
     setIsLoading(true);
 
-    generateCalendar();
+    if (user) {
+      generateCalendar();
+    }
     
     setIsLoading(false);
-  }, [user]);
+  }, [user, generateCalendar]);
 
   return (
     <BrowserRouter>

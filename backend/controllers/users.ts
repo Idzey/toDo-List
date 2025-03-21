@@ -25,7 +25,7 @@ userRouter.post("/signup", async (req, res, next) => {
         const passwordHash = await bcrypt.hash(password, 10);
 
         const verificationToken = jwt.sign({ username, email, password: passwordHash }, config.EMAIL_SECRET, { expiresIn: '15m' });  
-        const verificationLink = `http://localhost:5173/verifyEmail/${verificationToken}`;
+        const verificationLink = `${config.CLIENT_URL}/verifyEmail/${verificationToken}`;
         transporter.sendMail({
             from: config.SMTP_USER,
             to: email,
