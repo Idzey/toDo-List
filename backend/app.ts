@@ -28,6 +28,11 @@ app.use(cors({
   credentials: true,
 }));
 
+app.get("/", (_req, res) => {
+  res.send("Hello from Express on Vercel!");
+});
+
+
 app.use('/api/tasks', taskRouter);
 app.use('/api/todos', todoRouter);
 app.use('/api/users', userRouter);
