@@ -59,3 +59,8 @@ EMAIL_SECRET=???
 SMTP_USER=???
 SMTP_PASS=???
 ```
+
+### Скриншоты приложения: [Скриншоты](https://github.com/Idzey/toDo-List/blob/main/screenshot.md)
+
+### Опубликованная версия: [Сайт](https://to-do-list-gold-eight-80.vercel.app)
+P.S. *Может немного долго загружаться бэкенд, так как опубликован на Render (холодный старт).*
