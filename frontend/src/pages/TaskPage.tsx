@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import taskService from "../services/taskService";
-import { openErrorNotification, openSuccessNotification } from "../components/notification/Notification";
+import {
+  openErrorNotification,
+  openSuccessNotification,
+} from "../components/notification/Notification";
 import { Button, Divider, Form, Input, Popconfirm, Result, Spin } from "antd";
 import CardTask from "../components/tasksBlock/cardTask/CardTask";
 import todoService from "../services/todoService";
@@ -14,20 +17,18 @@ import type { TCalendarTask, TCalendarTodo } from "../types/calendar";
 import CalendarTask from "../components/calendar/CalendarTask";
 import useCalendarStore from "../store/calendar";
 
-const TaskPage = ({isCalendar}: {isCalendar?: boolean}) => {
+const TaskPage = ({ isCalendar }: { isCalendar?: boolean }) => {
   const { taskId } = useParams();
   const [selectedTask, setSelectedTask] = useState<Task | TCalendarTask>();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  const {
-    calendarTasksMonth, 
-    calendarTasksWeek, 
-    calendarTasksYear, 
-  } = useCalendarStore();
+  const { calendarTasksMonth, calendarTasksWeek, calendarTasksYear } =
+    useCalendarStore();
   const [searchParams] = useSearchParams();
-  const typeTask = searchParams.get("typeTask") as "week" | "month" | "year" || "month";
+  const typeTask =
+    (searchParams.get("typeTask") as "week" | "month" | "year") || "month";
 
   useEffect(() => {
     const fetchTask = async () => {
@@ -40,13 +41,19 @@ const TaskPage = ({isCalendar}: {isCalendar?: boolean}) => {
 
           switch (typeTask) {
             case "week":
-              task = calendarTasksWeek.find((item: TCalendarTask) => item.id === Number(taskId));
+              task = calendarTasksWeek.find(
+                (item: TCalendarTask) => item.id === Number(taskId)
+              );
               break;
             case "month":
-              task = calendarTasksMonth.find((item: TCalendarTask) => item.id === Number(taskId));
+              task = calendarTasksMonth.find(
+                (item: TCalendarTask) => item.id === Number(taskId)
+              );
               break;
             case "year":
-              task = calendarTasksYear.find((item: TCalendarTask) => item.id === Number(taskId));
+              task = calendarTasksYear.find(
+                (item: TCalendarTask) => item.id === Number(taskId)
+              );
               break;
           }
 
@@ -65,7 +72,15 @@ const TaskPage = ({isCalendar}: {isCalendar?: boolean}) => {
     };
 
     fetchTask();
-  }, [taskId, isCalendar, searchParams, calendarTasksMonth, calendarTasksWeek, calendarTasksYear, typeTask]);
+  }, [
+    taskId,
+    isCalendar,
+    searchParams,
+    calendarTasksMonth,
+    calendarTasksWeek,
+    calendarTasksYear,
+    typeTask,
+  ]);
 
   if (isLoading) return <Spin size="large" fullscreen />;
 
@@ -83,7 +98,7 @@ const TaskPage = ({isCalendar}: {isCalendar?: boolean}) => {
       />
     );
   }
-  
+
   if (!selectedTask) return null;
 
   return (
@@ -96,29 +111,37 @@ const TaskPage = ({isCalendar}: {isCalendar?: boolean}) => {
           setOpen={setOpenModal}
         />
       )}
-      <div className="w-full">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl">
-            <Link to="/">To-Do</Link> / {isCalendar && <><Link to="/calendar">Calendar</Link> /</>} {selectedTask.title}
-          </h1>
-          <Button color="pink" variant="solid" onClick={() => navigate("/")}>
-            Go home
-          </Button>
-        </div>
-        <Divider className="border-b-1 border-b-gray-300" />
-        <div className="lg:px-10 flex justify-center">
-          {selectedTask && "createdAt" in selectedTask ? (
-            <CardTask
-              setTask={setSelectedTask}
-              moreInfo={true}
-              task={selectedTask}
-            />
-          ) : (
-            <CalendarTask typeTask={typeTask} task={selectedTask} />
-          )}
+      <div className="w-full h-full flex flex-col justify-between items-center">
+        <div className="flex flex-col">
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl">
+              <Link to="/">To-Do</Link> /{" "}
+              {isCalendar && (
+                <>
+                  <Link to="/calendar">Calendar</Link> /
+                </>
+              )}{" "}
+              {selectedTask.title}
+            </h1>
+            <Button color="pink" variant="solid" onClick={() => navigate("/")}>
+              Go home
+            </Button>
+          </div>
+          <Divider className="border-b-1 border-b-gray-300" />
+          <div className="lg:px-10 flex justify-center">
+            {selectedTask && "createdAt" in selectedTask ? (
+              <CardTask
+                setTask={setSelectedTask}
+                moreInfo={true}
+                task={selectedTask}
+              />
+            ) : (
+              <CalendarTask typeTask={typeTask} task={selectedTask} />
+            )}
+          </div>
         </div>
 
-        <div className="h-3/4 w-full flex">
+        <div className="w-full flex">
           <FormTodo
             isCalendar={isCalendar}
             setModalOpen={setOpenModal}
@@ -135,7 +158,7 @@ const FormTodo = ({
   task,
   setTask,
   setModalOpen,
-  isCalendar
+  isCalendar,
 }: {
   task: Task | TCalendarTask;
   setTask: (task: Task | TCalendarTask) => void;
@@ -154,7 +177,7 @@ const FormTodo = ({
     if (!task) return;
 
     try {
-      if (task && "createdAt" in task) { 
+      if (task && "createdAt" in task) {
         const newTodo = await todoService.createTodo({
           ...values,
           taskId: task.id,
@@ -162,7 +185,9 @@ const FormTodo = ({
 
         setTasks(
           tasks.map((item: Task) =>
-            item.id !== task.id ? item : { ...task, todos: [newTodo, ...task.todos] }
+            item.id !== task.id
+              ? item
+              : { ...task, todos: [newTodo, ...task.todos] }
           )
         );
         setTask({ ...task, todos: [newTodo, ...task.todos] });
@@ -171,13 +196,14 @@ const FormTodo = ({
         const newTodo = await calendarService.createCalendar({
           ...values,
           taskId: task.id,
+          date: task.date,
         });
 
         generateCalendar();
-        
-        setTask({ 
-          ...task, 
-          todos: [...(task.todos || []), newTodo] 
+
+        setTask({
+          ...task,
+          todos: [...(task.todos || []), newTodo],
         });
         openSuccessNotification("Calendar todo added successfully");
       }
@@ -197,7 +223,7 @@ const FormTodo = ({
 
           generateCalendar();
         });
-        
+
         navigate("/calendar");
         openSuccessNotification("Calendar task deleted");
       } else {
@@ -213,8 +239,8 @@ const FormTodo = ({
   };
 
   return (
-    <div className="w-full h-full lg:h-3/4 py-4 md:mt-8 lg:mt-16 flex flex-col gap-4 justify-between items-center">
-      <Form 
+    <div className="w-full h-full lg:h-3/4 py-4 flex flex-col gap-4 justify-between items-center">
+      <Form
         onFinish={handleCreateTodo}
         requiredMark={false}
         form={form}
@@ -262,8 +288,10 @@ const FormTodo = ({
         )}
 
         <Popconfirm
-          title={`Delete the ${isCalendar ? 'calendar task' : 'task'}`}
-          description={`Are you sure to delete this ${isCalendar ? 'calendar task' : 'task'}?`}
+          title={`Delete the ${isCalendar ? "calendar task" : "task"}`}
+          description={`Are you sure to delete this ${
+            isCalendar ? "calendar task" : "task"
+          }?`}
           onConfirm={() => deleteTask(task.id)}
           okText="Yes"
           cancelText="No"
@@ -274,7 +302,7 @@ const FormTodo = ({
             variant="solid"
             icon={<DeleteOutlined />}
           >
-            Delete {isCalendar ? 'calendar task' : 'task'}
+            Delete {isCalendar ? "calendar task" : "task"}
           </Button>
         </Popconfirm>
       </div>

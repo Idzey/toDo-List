@@ -14,7 +14,9 @@ const TasksBlock = ({ tasks }: { tasks: Tasks }) => {
   return (
     <div className="flex flex-row flex-wrap gap-4 my-2">
       {tasks.map((task: Task) => (
-        <CardTask task={task} key={task.id} />
+        <div className="flex md:w-[calc(33%-16px)] lg:w-[calc(25%-16px)]">
+          <CardTask task={task} key={task.id} />
+        </div>
       ))}
     </div>
   );

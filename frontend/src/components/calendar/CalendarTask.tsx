@@ -10,7 +10,7 @@ const CalendarTask = ({ task, typeTask }: { task: TCalendarTask, typeTask: "week
       <>
         <Link
           to={`/calendarTask/${task.id}?typeTask=${typeTask}`}
-          className="w-full md:w-[calc(33%-16px)] lg:w-[calc(25%-16px)]"
+          className="w-full"
         >
           <div
             className="card flex flex-col w-full text-black shadow-xl rounded-2xl border-black border-2"

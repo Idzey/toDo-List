@@ -8,11 +8,8 @@ import CalendarTask from "../components/calendar/CalendarTask";
 import useCalendarStore from "../store/calendar";
 
 const CalendarPage = () => {
-  const {
-    calendarTasksWeek, 
-    calendarTasksMonth, 
-    calendarTasksYear, 
-  } = useCalendarStore();
+  const { calendarTasksWeek, calendarTasksMonth, calendarTasksYear } =
+    useCalendarStore();
   const navigate = useNavigate();
   const { user } = useUserStore();
 
@@ -23,8 +20,8 @@ const CalendarPage = () => {
   });
 
   if (!user) {
-    return <Result title="You don't login. Please, login or sign up." />
-  };
+    return <Result title="You don't login. Please, login or sign up." />;
+  }
 
   return (
     <>
@@ -41,7 +38,11 @@ const CalendarPage = () => {
 
         <div className="mb-6">
           <div className="flex flex-col rounded-2xl border-black border-1">
-            <div className={`flex gap-2 p-4 ${accordionData.week && "border-black border-b-1"}`}>
+            <div
+              className={`flex gap-2 p-4 ${
+                accordionData.week && "border-black border-b-1"
+              }`}
+            >
               <Button
                 icon={accordionData.week ? <UpOutlined /> : <DownOutlined />}
                 onClick={() =>
@@ -56,11 +57,9 @@ const CalendarPage = () => {
             {accordionData.week && (
               <div className="flex flex-wrap gap-4 p-4">
                 {calendarTasksWeek.map((task: TCalendarTask) => (
-                  <CalendarTask 
-                    typeTask="week"
-                    key={task.id} 
-                    task={task}
-                  />
+                  <div className="flex md:w-[calc(33%-16px)] lg:w-[calc(25%-16px)]">
+                    <CalendarTask typeTask="week" key={task.id} task={task} />
+                  </div>
                 ))}
               </div>
             )}
@@ -69,7 +68,11 @@ const CalendarPage = () => {
 
         <div className="mb-6">
           <div className="flex flex-col rounded-2xl border-black border-1">
-            <div className={`flex gap-2 p-4 ${accordionData.month && "border-black border-b-1"}`}>
+            <div
+              className={`flex gap-2 p-4 ${
+                accordionData.month && "border-black border-b-1"
+              }`}
+            >
               <Button
                 icon={accordionData.month ? <UpOutlined /> : <DownOutlined />}
                 onClick={() =>
@@ -84,21 +87,22 @@ const CalendarPage = () => {
             {accordionData.month && (
               <div className="flex flex-wrap gap-4 p-4">
                 {calendarTasksMonth.map((task: TCalendarTask) => (
-                  <CalendarTask 
-                    typeTask="month"
-                    key={task.id} 
-                    task={task} 
-                  />
+                  <div className="flex md:w-[calc(33%-16px)] lg:w-[calc(25%-16px)]">
+                    <CalendarTask typeTask="month" key={task.id} task={task} />
+                  </div>
                 ))}
               </div>
             )}
           </div>
         </div>
 
-
         <div className="mb-6">
           <div className="flex flex-col rounded-2xl border-black border-1">
-            <div className={`flex gap-2 p-4 ${accordionData.year && "border-black border-b-1"}`}>
+            <div
+              className={`flex gap-2 p-4 ${
+                accordionData.year && "border-black border-b-1"
+              }`}
+            >
               <Button
                 icon={accordionData.year ? <UpOutlined /> : <DownOutlined />}
                 onClick={() =>
@@ -113,11 +117,9 @@ const CalendarPage = () => {
             {accordionData.year && (
               <div className="flex flex-wrap gap-4 p-4">
                 {calendarTasksYear.map((task: TCalendarTask) => (
-                  <CalendarTask 
-                    typeTask="year"
-                    key={task.id} 
-                    task={task} 
-                  />
+                  <div className="flex md:w-[calc(33%-16px)] lg:w-[calc(25%-16px)]">
+                    <CalendarTask typeTask="year" key={task.id} task={task} />
+                  </div>
                 ))}
               </div>
             )}

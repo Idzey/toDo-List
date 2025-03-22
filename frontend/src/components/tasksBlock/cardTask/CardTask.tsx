@@ -42,7 +42,7 @@ const CardTask = ({
       />
 
       {moreInfo ? (
-        <div className="w-full md:w-1/2">
+        <div className="w-full">
           <div
             className="card w-full text-black bg-peach-light shadow-xl rounded-2xl border-black border-2"
             style={{
@@ -76,7 +76,7 @@ const CardTask = ({
           </div>
         </div>
       ) : (
-        <Link to={`/task/${task.id}`} className="w-full md:w-[calc(33%-16px)] lg:w-[calc(25%-16px)]">
+        <Link to={`/task/${task.id}`} className="w-full">
           <div
             className="card flex flex-col w-full text-black bg-peach-light shadow-xl rounded-2xl border-black border-2"
             style={{

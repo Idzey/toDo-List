@@ -45,19 +45,18 @@ npm run preview
 ## 🔧 Настройка переменных окружения
 ### 📌 Фронтенд (`.env`):
 ```env
-VITE_API_URL=???
+VITE_API_URL = "http://*backend.com*/api"
 ```
 
 ### 📌 Бэкенд (`.env`):
 ```env
-PORT=3000
-MONGODB_URI=???
-CLIENT_URL=???
-JWT_SECRET=???
-REFRESH_SECRET=???
-EMAIL_SECRET=???
-SMTP_USER=???
-SMTP_PASS=???
+MONGODB_URI = "MONGODB_URI"
+CLIENT_URL = "http://*frontend.com*"
+JWT_SECRET = "JWTSecret"
+REFRESH_SECRET = "RefreshSecret"
+EMAIL_SECRET = "EmailSecret"
+SMTP_USER = "Google email"
+SMTP_PASS = "Google smtp password account"
 ```
 
 ### Скриншоты приложения: [Скриншоты](https://github.com/Idzey/toDo-List/blob/main/screenshot.md)

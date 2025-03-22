@@ -17,8 +17,8 @@ const getCalendar = async (id: string) => {
     return data;
 };
 
-const createCalendar = async ({name, taskId}: {name: string, taskId: string | number}) => {
-    const response = await axios.post(baseURL, {name, taskId});
+const createCalendar = async ({name, taskId, date}: {name: string, date: Date, taskId: string | number}) => {
+    const response = await axios.post(baseURL, {name, taskId, date});
 
     const data: TCalendarTodo = await response.data;
 

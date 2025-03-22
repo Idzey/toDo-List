@@ -53,6 +53,7 @@ const useCalendarStore = create<CalendarState>((set) => ({
           id: id++,
           title: weekDate.format("dddd"),
           todos,
+          date: weekDate.toDate()
         });
 
         weekDate = weekDate.add(1, "day");
@@ -70,6 +71,7 @@ const useCalendarStore = create<CalendarState>((set) => ({
           id: id++,
           title: monthDate.format("D MMM"),
           todos,
+          date: weekDate.toDate()
         });
 
         monthDate = monthDate.add(1, "day");
@@ -88,6 +90,7 @@ const useCalendarStore = create<CalendarState>((set) => ({
           id: id++,
           title: yearDate.format("MMMM"),
           todos: monthTodos,
+          date: weekDate.toDate()
         });
 
         yearDate = yearDate.add(1, "month");

@@ -61,7 +61,7 @@ calendarRouter.post('/', passport.authenticate('jwt', { session: false }), async
     }
     
     try {
-        const todo = new Calendar({ ...req.body, completed: false, date: new Date(), user: req.user.id });
+        const todo = new Calendar({ ...req.body, completed: false, user: req.user.id });
         const savedTodo = await todo.save();
         await User.updateOne({ _id: req.user.id }, { $push: { calendarTasks: savedTodo.id } });
 

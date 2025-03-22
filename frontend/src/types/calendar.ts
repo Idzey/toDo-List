@@ -10,6 +10,7 @@ type TCalendarTask = {
     id: number,
     title: string,
     todos: TCalendarTodo[],
+    date: Date
 };
 
 
