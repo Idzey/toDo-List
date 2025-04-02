@@ -112,7 +112,7 @@ const TaskPage = ({ isCalendar }: { isCalendar?: boolean }) => {
         />
       )}
       <div className="w-full h-full flex flex-col justify-between items-center">
-        <div className="flex flex-col">
+        <div className="flex w-full flex-col">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl">
               <Link to="/">To-Do</Link> /{" "}
@@ -128,7 +128,7 @@ const TaskPage = ({ isCalendar }: { isCalendar?: boolean }) => {
             </Button>
           </div>
           <Divider className="border-b-1 border-b-gray-300" />
-          <div className="lg:px-10 flex justify-center">
+          <div className="lg:px-40 flex justify-center">
             {selectedTask && "createdAt" in selectedTask ? (
               <CardTask
                 setTask={setSelectedTask}
